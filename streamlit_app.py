@@ -1,6 +1,12 @@
 import streamlit as st
 from openai import OpenAI
 
+# Accede a la clave API desde los secretos
+openai_api_key = st.secrets["openai"]["api_key"]
+
+# Crear un cliente de OpenAI
+client = OpenAI(api_key=openai_api_key)
+
 # Mostrar título y descripción en español.
 st.title("💬 Chatbot")
 st.write(
