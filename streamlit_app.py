@@ -1,16 +1,16 @@
 import streamlit as st
-from openai import OpenAI
+import openai
 
 # Accede a la clave API desde los secretos
 openai_api_key = st.secrets["openai"]["api_key"]
 
-# Configura el cliente de OpenAI
-client = OpenAI(api_key=openai_api_key)
+# Configura la clave API para OpenAI
+openai.api_key = openai_api_key
 
 # Mostrar título y descripción en español.
 st.title("💬 Chatbot")
 st.write(
-    "Este es un chatbot sencillo que utiliza el modelo GPT-3.5 de OpenAI para generar respuestas en tiempo real usando streaming. "
+    "Este es un chatbot sencillo que utiliza el modelo GPT-3.5 de OpenAI para generar respuestas. "
     "Para usar esta aplicación, necesitas proporcionar una clave API de OpenAI, que puedes guardar en los secretos del repositorio."
 )
 
@@ -34,26 +34,24 @@ else:
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Generar una respuesta usando la API de OpenAI con streaming.
+        # Generar una respuesta usando la API de OpenAI.
         try:
-            stream = client.chat.completions.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": m["role"], "content": m["content"]}
                     for m in st.session_state.messages
                 ],
-                stream=True,
             )
 
-            response_content = ""
-            for chunk in stream:
-                if chunk.choices[0].delta.content is not None:
-                    response_content += chunk.choices[0].delta.content
-                    # Mostrar el contenido recibido hasta ahora.
-                    st.chat_message("assistant").markdown(response_content)
+            # Obtener el contenido de la respuesta.
+            response_content = response.choices[0].message['content']
 
-            # Almacenar la respuesta completa en el estado de la sesión.
+            # Mostrar la respuesta al chat y almacenarla en el estado de la sesión.
+            with st.chat_message("assistant"):
+                st.markdown(response_content)
             st.session_state.messages.append({"role": "assistant", "content": response_content})
-
-        except Exception as e:
+        except openai.error.RateLimitError:
+            st.error("Se ha superado el límite de solicitudes. Por favor, intenta de nuevo más tarde.")
+        except openai.error.OpenAIError as e:
             st.error(f"Error al obtener respuesta de la API: {e}")
