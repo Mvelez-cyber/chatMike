@@ -36,16 +36,15 @@ else:
 
         # Generar una respuesta usando la API de OpenAI.
         try:
-            response = openai.ChatCompletion.create(
+            response = openai.Completion.create(
                 model="gpt-3.5-turbo",
-                messages=[
-                    {"role": m["role"], "content": m["content"]}
-                    for m in st.session_state.messages
-                ],
+                prompt=prompt,
+                max_tokens=150,
+                temperature=0.7
             )
 
             # Obtener el contenido de la respuesta.
-            response_content = response.choices[0].message['content']
+            response_content = response.choices[0].text.strip()
 
             # Mostrar la respuesta al chat y almacenarla en el estado de la sesión.
             with st.chat_message("assistant"):
