@@ -1,3 +1,4 @@
+# Ignorar el archivo de secretos de Streamlit
 .streamlit/secrets.toml
 
 # Byte-compiled / optimized / DLL files

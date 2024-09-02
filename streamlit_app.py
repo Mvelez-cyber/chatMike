@@ -4,6 +4,9 @@ import openai
 # Accede a la clave API desde los secretos
 openai_api_key = st.secrets["openai"]["api_key"]
 
+# Configura la clave API para OpenAI
+openai.api_key = openai_api_key
+
 # Mostrar título y descripción en español.
 st.title("💬 Chatbot")
 st.write(
@@ -15,9 +18,6 @@ st.write(
 if not openai_api_key:
     st.info("Por favor, agrega tu clave API de OpenAI en los secretos para continuar.", icon="🗝️")
 else:
-    # Configura la clave API para OpenAI.
-    openai.api_key = openai_api_key
-
     # Crear una variable de estado de sesión para almacenar los mensajes del chat.
     if "messages" not in st.session_state:
         st.session_state.messages = []
