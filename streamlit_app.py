@@ -34,19 +34,22 @@ else:
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Generar una respuesta usando la API de OpenAI.
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
-        )
+        try:
+            # Generar una respuesta usando la API de OpenAI.
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": m["role"], "content": m["content"]}
+                    for m in st.session_state.messages
+                ],
+            )
 
-        # Obtener el contenido de la respuesta.
-        response_content = response.choices[0].message['content']
+            # Obtener el contenido de la respuesta.
+            response_content = response.choices[0].message['content']
 
-        # Mostrar la respuesta al chat y almacenarla en el estado de la sesión.
-        with st.chat_message("assistant"):
-            st.markdown(response_content)
-        st.session_state.messages.append({"role": "assistant", "content": response_content})
+            # Mostrar la respuesta al chat y almacenarla en el estado de la sesión.
+            with st.chat_message("assistant"):
+                st.markdown(response_content)
+            st.session_state.messages.append({"role": "assistant", "content": response_content})
+        except Exception as e:
+            st.error(f"Error al obtener respuesta de la API: {e}")
