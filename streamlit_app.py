@@ -1,8 +1,13 @@
 import streamlit as st
 import openai
 
-# Obtener la clave API de OpenAI desde los secretos del repositorio.
-openai_api_key = st.secrets["openai_api_key"]
+
+if "openai" not in st.secrets:
+    st.error("No se encontró la sección [openai] en secrets.toml")
+else:
+    st.write("La sección [openai] se encontró exitosamente")
+    openai_api_key = st.secrets["openai"]["api_key"]
+    st.write("API Key cargada exitosamente")
 
 # Si no se proporciona una clave API, mostrar un mensaje informativo.
 if not openai_api_key:
