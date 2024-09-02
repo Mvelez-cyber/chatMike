@@ -1,11 +1,11 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 
 # Accede a la clave API desde los secretos
 openai_api_key = st.secrets["openai"]["api_key"]
 
-# Configura la clave API para OpenAI
-openai.api_key = openai_api_key
+# Configura el cliente de OpenAI
+client = OpenAI(api_key=openai_api_key)
 
 # Mostrar título y descripción en español.
 st.title("💬 Chatbot")
@@ -35,7 +35,7 @@ else:
             st.markdown(prompt)
 
         # Generar una respuesta usando la API de OpenAI.
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": m["role"], "content": m["content"]}
