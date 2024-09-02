@@ -1,23 +1,22 @@
 import streamlit as st
 import openai
 
-# Accede a la clave API desde los secretos
-openai_api_key = st.secrets["openai"]["api_key"]
+# Obtener la clave API de OpenAI desde los secretos del repositorio.
+openai_api_key = st.secrets["openai_api_key"]
 
-# Configura la clave API para OpenAI
-openai.api_key = openai_api_key
-
-# Mostrar título y descripción en español.
-st.title("💬 Chatbot")
-st.write(
-    "Este es un chatbot sencillo que utiliza el modelo GPT-3.5 de OpenAI para generar respuestas. "
-    "Para usar esta aplicación, necesitas proporcionar una clave API de OpenAI, que puedes guardar en los secretos del repositorio."
-)
-
-# Verifica si la clave API está disponible.
+# Si no se proporciona una clave API, mostrar un mensaje informativo.
 if not openai_api_key:
-    st.info("Por favor, agrega tu clave API de OpenAI en los secretos para continuar.", icon="🗝️")
+    st.info("Por favor, agrega tu clave API de OpenAI en los secretos para continuar.")
 else:
+    # Crear un cliente de OpenAI.
+    openai.api_key = openai_api_key
+
+    # Selección del modelo basado en la necesidad del usuario.
+    model_option = st.selectbox(
+        "Selecciona el modelo GPT-3:",
+        ("text-davinci-003", "text-curie-001", "text-babbage-001", "text-ada-001")
+    )
+
     # Crear una variable de estado de sesión para almacenar los mensajes del chat.
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -28,28 +27,26 @@ else:
             st.markdown(message["content"])
 
     # Crear un campo de entrada para que el usuario ingrese un mensaje.
-    if prompt := st.chat_input("¿Qué tal?"):
-        # Almacenar y mostrar el mensaje actual.
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+    if user_input := st.chat_input("Escribe un mensaje"):
+        # Guardar el mensaje del usuario.
+        st.session_state.messages.append({"role": "user", "content": user_input})
 
-        # Generar una respuesta usando la API de OpenAI.
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": m["role"], "content": m["content"]}
-                    for m in st.session_state.messages
-                ],
-            )
+        # Llamar al modelo seleccionado en OpenAI GPT-3.
+        response = openai.Completion.create(
+            model=model_option,
+            prompt=user_input,
+            max_tokens=150,
+            temperature=0.7,
+            n=1,
+            stop=None,
+            frequency_penalty=0.0,
+            presence_penalty=0.0
+        )
 
-            # Obtener el contenido de la respuesta.
-            response_content = response.choices[0].message['content']
+        # Guardar la respuesta del modelo en el estado de sesión.
+        bot_response = response.choices[0].text.strip()
+        st.session_state.messages.append({"role": "assistant", "content": bot_response})
 
-            # Mostrar la respuesta al chat y almacenarla en el estado de la sesión.
-            with st.chat_message("assistant"):
-                st.markdown(response_content)
-            st.session_state.messages.append({"role": "assistant", "content": response_content})
-        except openai.error.OpenAIError as e:
-            st.error(f"Error al obtener respuesta de la API: {e}")
+        # Mostrar la respuesta del modelo.
+        with st.chat_message("assistant"):
+            st.markdown(bot_response)
