@@ -36,19 +36,22 @@ else:
 
         # Generar una respuesta usando la API de OpenAI.
         try:
-            response = openai.Completion.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
-                prompt=prompt,
-                max_tokens=150,
-                temperature=0.7
+                messages=[
+                    {"role": m["role"], "content": m["content"]}
+                    for m in st.session_state.messages
+                ],
             )
 
             # Obtener el contenido de la respuesta.
-            response_content = response.choices[0].text.strip()
+            response_content = response.choices[0].message['content']
 
             # Mostrar la respuesta al chat y almacenarla en el estado de la sesión.
             with st.chat_message("assistant"):
                 st.markdown(response_content)
             st.session_state.messages.append({"role": "assistant", "content": response_content})
-        except openai.OpenAIError as e:
+        except openai.error.RateLimitError as e:
+            st.error(f"Error al obtener respuesta de la API: Excedido el límite de cuota: {e}")
+        except openai.error.OpenAIError as e:
             st.error(f"Error al obtener respuesta de la API: {e}")
