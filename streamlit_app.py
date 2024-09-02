@@ -51,7 +51,5 @@ else:
             with st.chat_message("assistant"):
                 st.markdown(response_content)
             st.session_state.messages.append({"role": "assistant", "content": response_content})
-        except openai.error.RateLimitError as e:
-            st.error(f"Error al obtener respuesta de la API: Excedido el límite de cuota: {e}")
         except openai.error.OpenAIError as e:
             st.error(f"Error al obtener respuesta de la API: {e}")
