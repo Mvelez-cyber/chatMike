@@ -51,7 +51,5 @@ else:
             with st.chat_message("assistant"):
                 st.markdown(response_content)
             st.session_state.messages.append({"role": "assistant", "content": response_content})
-        except openai.error.RateLimitError:
-            st.error("Se ha superado el límite de solicitudes. Por favor, intenta de nuevo más tarde.")
-        except openai.error.OpenAIError as e:
+        except openai.OpenAIError as e:
             st.error(f"Error al obtener respuesta de la API: {e}")
