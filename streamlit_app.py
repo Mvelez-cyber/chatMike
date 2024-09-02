@@ -1,45 +1,40 @@
 import streamlit as st
 from openai import OpenAI
 
-# Show title and description.
+# Mostrar título y descripción en español.
 st.title("💬 Chatbot")
 st.write(
-    "This is a simple chatbot that uses OpenAI's GPT-3.5 model to generate responses. "
-    "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
-    "You can also learn how to build this app step by step by [following our tutorial](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)."
+    "Este es un chatbot sencillo que utiliza el modelo GPT-3.5 de OpenAI para generar respuestas. "
+    "Para usar esta aplicación, necesitas proporcionar una clave API de OpenAI, que puedes guardar en los secretos del repositorio."
 )
 
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
-openai_api_key = st.text_input("OpenAI API Key", type="password")
+# Obtener la clave API de OpenAI desde los secretos del repositorio.
+openai_api_key = st.secrets["openai_api_key"]
 if not openai_api_key:
-    st.info("Please add your OpenAI API key to continue.", icon="🗝️")
+    st.info("Por favor, agrega tu clave API de OpenAI en los secretos para continuar.", icon="🗝️")
 else:
 
-    # Create an OpenAI client.
+    # Crear un cliente de OpenAI.
     client = OpenAI(api_key=openai_api_key)
 
-    # Create a session state variable to store the chat messages. This ensures that the
-    # messages persist across reruns.
+    # Crear una variable de estado de sesión para almacenar los mensajes del chat.
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # Display the existing chat messages via `st.chat_message`.
+    # Mostrar los mensajes del chat existentes.
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    # Create a chat input field to allow the user to enter a message. This will display
-    # automatically at the bottom of the page.
-    if prompt := st.chat_input("What is up?"):
+    # Crear un campo de entrada para que el usuario ingrese un mensaje.
+    if prompt := st.chat_input("¿Qué tal?"):
 
-        # Store and display the current prompt.
+        # Almacenar y mostrar el mensaje actual.
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Generate a response using the OpenAI API.
+        # Generar una respuesta usando la API de OpenAI.
         stream = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -49,8 +44,7 @@ else:
             stream=True,
         )
 
-        # Stream the response to the chat using `st.write_stream`, then store it in 
-        # session state.
+        # Transmitir la respuesta al chat y almacenarla en el estado de la sesión.
         with st.chat_message("assistant"):
             response = st.write_stream(stream)
         st.session_state.messages.append({"role": "assistant", "content": response})
