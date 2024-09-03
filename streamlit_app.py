@@ -5,10 +5,10 @@ import openai
 openai.api_key = st.secrets["openai"]["api_key"]
 
 # Interfaz de usuario con Streamlit
-st.title("Chatbot con GPT-3/4")
+st.title("Chatbot con GPT-3")
 
 # Selecciona el modelo GPT
-model = st.selectbox("Selecciona el modelo GPT:", ["gpt-3.5-turbo", "gpt-4"])
+model = st.selectbox("Selecciona el modelo GPT:", ["text-davinci-003", "text-curie-001"])
 
 # Campo para ingresar el prompt
 prompt = st.text_area("Introduce el prompt:")
@@ -17,16 +17,16 @@ prompt = st.text_area("Introduce el prompt:")
 if st.button("Enviar"):
     if prompt:
         try:
-            # Uso del método adecuado para la versión 1.43.0 de la API
-            response = openai.ChatCompletion.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
+            # Uso del método adecuado para la versión 0.28 de la API
+            response = openai.Completion.create(
+                engine=model,
+                prompt=prompt,
                 max_tokens=100,
                 temperature=0.5,
             )
             # Mostrar la respuesta en Streamlit
             st.write("Respuesta:")
-            st.write(response.choices[0].message['content'].strip())
+            st.write(response.choices[0].text.strip())
         except Exception as e:
             st.error(f"Error: {str(e)}")
     else:
