@@ -14,15 +14,15 @@ prompt = st.text_area("Introduce el prompt:")
 if st.button("Enviar"):
     if prompt:
         try:
-            # Nueva forma de llamar a la API en versiones más recientes
-            response = openai.Completion.create(
-                engine=model,
-                prompt=prompt,
+            # Uso del método adecuado para la versión 1.0.0 o posterior
+            response = openai.ChatCompletion.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}],
                 max_tokens=100,
                 temperature=0.5,
             )
             st.write("Respuesta:")
-            st.write(response.choices[0].text.strip())
+            st.write(response.choices[0].message['content'].strip())
         except Exception as e:
             st.error(f"Error: {str(e)}")
     else:
