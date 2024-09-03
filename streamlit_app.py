@@ -15,7 +15,7 @@ if st.button("Enviar"):
     if prompt:
         try:
             # Nueva forma de llamar a la API
-            response = openai.chat_completions.create(
+            response = openai.ChatCompletion.create(
                 model=model,
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant."},
